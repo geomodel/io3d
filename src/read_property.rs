@@ -3,6 +3,7 @@ use anyhow::Result as Result;
 use std::io::{BufReader,BufRead};
 use std::fs::File;
 
+//  //  //  //  //  //  //  //
 /*
 fn auto_load_via_filename( file_name: &str ) -> Result<()> {
     let file = File::open(file_name)?;
@@ -22,24 +23,9 @@ fn auto_load_via_reader<R: std::io::Read>( reader: &mut BufReader<R> ) -> Result
 }
 */
 
-fn get_next_not_empty_string<R>(reader: &mut BufReader<R>) -> Result<String>
-where R: std::io::Read
-{
-    let mut line = String::new();
-    loop {
-        reader.read_line(&mut line)?;
-        if line.is_empty() {
-            return Ok( line );
-        }
-        line.retain( |ch| !"\n\r".contains(ch) );
-        if !line.is_empty() {
-            break;
-        }
-    }
-    Ok(line)
-}
 
 
+//  //  //  //  //  //  //  //
 fn read_header_title<R>(reader: &mut BufReader<R>) -> Result<String>
 where R: std::io::Read
 {
@@ -127,7 +113,28 @@ where R: std::io::Read
     Ok(result)
 }
 
+//  //  //  //  //  //  //  //
+fn get_next_not_empty_string<R>(reader: &mut BufReader<R>) -> Result<String>
+where R: std::io::Read
+{
+    let mut line = String::new();
+    loop {
+        reader.read_line(&mut line)?;
+        if line.is_empty() {
+            return Ok( line );
+        }
+        line.retain( |ch| !"\n\r".contains(ch) );
+        if !line.is_empty() {
+            break;
+        }
+    }
+    Ok(line)
+}
 
+
+//  //  //  //  //  //  //  //
+//        TESTS             //
+//  //  //  //  //  //  //  //
 #[cfg(test)]
 mod tests {
     use super::*;
