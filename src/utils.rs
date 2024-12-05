@@ -1,10 +1,11 @@
-use anyhow::Result as Result;
+use anyhow::Result;
 
-use std::io::{BufReader,BufRead};
+use std::io::{BufRead, BufReader};
 
 //  //  //  //  //  //  //  //
 pub(crate) fn line_reader<R>(reader: &mut BufReader<R>, line_type_name: &str) -> Result<String>
-where R: std::io::Read
+where
+    R: std::io::Read,
 {
     let mut line = String::new();
     loop {
@@ -12,14 +13,13 @@ where R: std::io::Read
         if line.is_empty() {
             return Err(anyhow::anyhow!("No data for reading <{}>", line_type_name));
         }
-        line.retain( |ch| !"\n\r".contains(ch) );
+        line.retain(|ch| !"\n\r".contains(ch));
         if !line.is_empty() {
             break;
         }
     }
     Ok(line)
 }
-
 
 //  //  //  //  //  //  //  //
 //        TESTS             //
@@ -31,7 +31,7 @@ mod line_reader {
     #[test]
     fn arounded_line() -> Result<()> {
         let s = "\n\nsome data\n\nafter next data\n\n";
-        let mut reader = BufReader::new( s.as_bytes() );
+        let mut reader = BufReader::new(s.as_bytes());
         let ln1 = line_reader(&mut reader, "ln1")?;
         let ln2 = line_reader(&mut reader, "ln2")?;
         assert!(ln1 == "some data");
@@ -41,7 +41,7 @@ mod line_reader {
     #[test]
     fn single_line() -> Result<()> {
         let s = "some data";
-        let mut reader = BufReader::new( s.as_bytes() );
+        let mut reader = BufReader::new(s.as_bytes());
         let result = line_reader(&mut reader, "test")?;
         assert!(result == s);
         Ok(())
@@ -50,14 +50,14 @@ mod line_reader {
     #[test]
     fn empty_line_2_error() {
         let s = "";
-        let mut reader = BufReader::new( s.as_bytes() );
+        let mut reader = BufReader::new(s.as_bytes());
         let result = line_reader(&mut reader, "");
         assert!(result.is_err(), "must be Error!");
     }
     #[test]
     fn empty_line_error() {
         let s = "\n\n\n";
-        let mut reader = BufReader::new( s.as_bytes() );
+        let mut reader = BufReader::new(s.as_bytes());
         let result = line_reader(&mut reader, "");
         assert!(result.is_err(), "must be Error!");
     }
