@@ -3,7 +3,6 @@ use anyhow::Result as Result;
 use std::io::{BufReader,BufRead};
 
 //  //  //  //  //  //  //  //
-#[allow(dead_code)]
 pub(crate) fn line_reader<R>(reader: &mut BufReader<R>, line_type_name: &str) -> Result<String>
 where R: std::io::Read
 {

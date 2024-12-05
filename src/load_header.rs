@@ -1,7 +1,3 @@
-#[allow(dead_code)]
-
-
-
 use anyhow::Result as Result;
 use std::io::BufReader;
 
@@ -9,14 +5,14 @@ use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
 #[allow(dead_code)]
-struct PropertyHeader {
-    title: String,
-    values_number: u8,
-    descriptions: Vec<String>,
+pub(crate) struct PropertyHeader {
+    pub title: String,
+    pub values_number: u8,
+    pub descriptions: Vec<String>,
 }
 
 #[allow(dead_code)]
-fn read_header<R>(reader: &mut BufReader<R>) -> Result<PropertyHeader>
+pub(crate) fn read_header<R>(reader: &mut BufReader<R>) -> Result<PropertyHeader>
 where R: std::io::Read
 {
     let title = line_reader(reader, "Header Title")?;

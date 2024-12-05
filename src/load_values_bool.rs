@@ -4,8 +4,7 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
-#[allow(dead_code)]
-fn read_bool<R>(reader: &mut BufReader<R>, values_number: usize) -> Result<Vec<bool>>
+pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, values_number: usize) -> Result<Vec<bool>>
 where R: std::io::Read
 {
     let mut result = Vec::<bool>::new();
