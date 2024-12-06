@@ -15,7 +15,7 @@ where
     for i in 0..values_number {
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
         let Ok(value) = line.parse::<T>() else {
-            return Err(anyhow::anyhow!("Unable to parse #{} <{}> as BOOL", i, line));
+            return Err(anyhow::anyhow!("Unable to parse #{} <{}> as value", i, line));
         };
         result.push(value);
     }
