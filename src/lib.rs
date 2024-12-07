@@ -14,18 +14,20 @@ use anyhow::Result;
 use std::io::BufReader;
 use std::{fs::File, io::BufWriter};
 
-use types::*;
+pub use types::*;
 
-pub fn save_discrete_property(file_name: &str, property: &[Discrete]) -> Result<()> {
+static UNDEF_VALUE: &str = "-999";
+
+pub fn save_discrete_property(file_name: &str, property: &[Option<Discrete>]) -> Result<()> {
     let fl = File::create(file_name)?;
     let mut writer = BufWriter::new(fl);
-    save_values_of_type::write_property(&mut writer, property)?;
+    save_values_of_type::write_property(&mut writer, property, UNDEF_VALUE)?;
     Ok(())
 }
-pub fn save_continuous_property(file_name: &str, property: &[Continuous]) -> Result<()> {
+pub fn save_continuous_property(file_name: &str, property: &[Option<Continuous>]) -> Result<()> {
     let fl = File::create(file_name)?;
     let mut writer = BufWriter::new(fl);
-    save_values_of_type::write_property(&mut writer, property)?;
+    save_values_of_type::write_property(&mut writer, property, UNDEF_VALUE)?;
     Ok(())
 }
 
@@ -40,7 +42,7 @@ pub fn load_actnum(file_name: &str, size: usize) -> Result<Vec<bool>> {
     }
     load_values_bool::read_bool(&mut reader, size)
 }
-pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Vec<Discrete>> {
+pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Vec<Option<Discrete>>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -49,9 +51,9 @@ pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Vec<Discre
             "Discrete property file must contains the only value"
         ));
     }
-    load_values_of_type::read_values(&mut reader, size)
+    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
 }
-pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Vec<Continuous>> {
+pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Vec<Option<Continuous>>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -60,5 +62,28 @@ pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Vec<Cont
             "Continuous property file must contains the only value"
         ));
     }
-    load_values_of_type::read_values(&mut reader, size)
+    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
+}
+
+pub fn load_discrete_bw(file_name: &str) -> Result<Vec<(IJK, Discrete)>> {
+    let fl = File::open(file_name)?;
+    let mut reader = BufReader::new(fl);
+    let header = load_header::read_header(&mut reader)?;
+    if header.values_number != 4 {
+        return Err(anyhow::anyhow!(
+            "Upscaled file must contains I, J, K, Value"
+        ));
+    }
+    load_ijk_values_of_type::read_ijk_values(&mut reader)
+}
+pub fn load_continuous_bw(file_name: &str) -> Result<Vec<(IJK, Continuous)>> {
+    let fl = File::open(file_name)?;
+    let mut reader = BufReader::new(fl);
+    let header = load_header::read_header(&mut reader)?;
+    if header.values_number != 4 {
+        return Err(anyhow::anyhow!(
+            "Upscaled file must contains I, J, K, Value"
+        ));
+    }
+    load_ijk_values_of_type::read_ijk_values(&mut reader)
 }

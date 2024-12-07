@@ -3,7 +3,7 @@ use std::io::BufWriter;
 use std::io::Write;
 
 //  //  //  //  //  //  //  //
-pub fn write_property<R, T>(writer: &mut BufWriter<R>, data: &[T]) -> Result<()>
+pub fn write_property<R, T>(writer: &mut BufWriter<R>, data: &[Option<T>], undef_value: &str) -> Result<()>
 where
     R: std::io::Write,
     T: std::fmt::Display,
@@ -12,7 +12,14 @@ where
     writeln!(writer, "1")?;
     writeln!(writer, "Value")?;
     for value in data {
-        writeln!(writer, "{}", value)?;
+        match value {
+            None => {
+                writeln!(writer, "{}", undef_value)?;
+            },
+            Some(v) => {
+                writeln!(writer, "{}", v)?;
+            },
+        }
     }
     Ok(())
 }
@@ -30,8 +37,8 @@ mod read_values_of_type {
         let comp = "GeoModel: Property\n1\nValue\n1\n2\n3\n";
         let mut buf = Vec::new();
         let mut writer = BufWriter::new(&mut buf);
-        let property: Vec<Discrete> = vec![1, 2, 3];
-        write_property(&mut writer, &property)?;
+        let property: Vec<Option<Discrete>> = vec![Some(1), Some(2), Some(3)];
+        write_property(&mut writer, &property, "-999")?;
         drop(writer);
         let s = String::from_utf8(buf)?;
         assert!(s == comp);
@@ -43,8 +50,8 @@ mod read_values_of_type {
         let comp = "GeoModel: Property\n1\nValue\n1\n2.2\n0.3\n";
         let mut buf = Vec::new();
         let mut writer = BufWriter::new(&mut buf);
-        let arr: [Continuous; 3] = [1.0, 2.2, 0.3];
-        write_property(&mut writer, &arr)?;
+        let arr: [Option<Continuous>; 3] = [Some(1.0), Some(2.2), Some(0.3)];
+        write_property(&mut writer, &arr, "-999")?;
         drop(writer);
         let s = String::from_utf8(buf)?;
         assert!(s == comp);

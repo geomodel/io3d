@@ -2,17 +2,10 @@ use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
+use crate::IJK;
 
 //  //  //  //  //  //  //  //
-#[allow(dead_code)]
-struct IJK {
-    i: u16,
-    j: u16,
-    k: u16,
-}
-
-#[allow(dead_code)]
-fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Vec<(IJK, T)>>
+pub(crate) fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Vec<(IJK, T)>>
 where
     R: std::io::Read,
     T: std::str::FromStr,
@@ -32,21 +25,21 @@ where
                 counter + 1
             ));
         };
-        let Ok(i) = parsed_line[0].parse::<u16>() else {
+        let Ok(i) = parsed_line[0].parse::<usize>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as I-coordinate #{}",
                 parsed_line[0],
                 counter + 1
             ));
         };
-        let Ok(j) = parsed_line[1].parse::<u16>() else {
+        let Ok(j) = parsed_line[1].parse::<usize>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as J-coordinate #{}",
                 parsed_line[1],
                 counter + 1
             ));
         };
-        let Ok(k) = parsed_line[2].parse::<u16>() else {
+        let Ok(k) = parsed_line[2].parse::<usize>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as K-coordinate #{}",
                 parsed_line[2],
@@ -140,31 +133,31 @@ mod read_ijk_values_of_type {
 
     #[test]
     fn integer_values() -> Result<()> {
-        let s = "\n\n\n 1 \t2 \t 3   -999\n\n\n\n";
+        let s = "\n\n\n 2 \t3 \t 2   -999\n\n\n\n";
         let mut reader = BufReader::new(s.as_bytes());
         let values = read_ijk_values::<&[u8], i16>(&mut reader)?;
         assert!(values.len() == 1);
         assert!(values[0].1 == -999);
-        assert!(values[0].0.i == 1);
-        assert!(values[0].0.j == 2);
-        assert!(values[0].0.k == 3);
+        assert!(values[0].0.i == 2);
+        assert!(values[0].0.j == 3);
+        assert!(values[0].0.k == 2);
         Ok(())
     }
 
     #[test]
     fn float_values() -> Result<()> {
-        let s = "\n\n\n 1 \t2 \t 3   -999.9\n\n2 3 4 5\n\n";
+        let s = "\n\n\n 1 \t2 \t 4   -999.9\n\n2 3 1 5\n\n";
         let mut reader = BufReader::new(s.as_bytes());
         let values = read_ijk_values::<&[u8], f64>(&mut reader)?;
         assert!(values.len() == 2);
         assert!(values[0].1 == -999.9_f64);
         assert!(values[0].0.i == 1);
         assert!(values[0].0.j == 2);
-        assert!(values[0].0.k == 3);
+        assert!(values[0].0.k == 4);
         assert!(values[1].1 == 5_f64);
         assert!(values[1].0.i == 2);
         assert!(values[1].0.j == 3);
-        assert!(values[1].0.k == 4);
+        assert!(values[1].0.k == 1);
         Ok(())
     }
 }

@@ -4,14 +4,14 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
-pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, values_number: usize) -> Result<Vec<bool>>
+pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, size: usize) -> Result<Vec<bool>>
 where
     R: std::io::Read,
 {
     let mut result = Vec::<bool>::new();
-    result.try_reserve_exact(values_number)?;
+    result.try_reserve_exact(size)?;
 
-    for i in 0..values_number {
+    for i in 0..size {
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
         match line.as_str() {
             "0" => result.push(false),
