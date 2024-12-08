@@ -4,12 +4,11 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
-pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, size: usize) -> Result<Vec<bool>>
+pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, size: usize) -> Result<Box<[bool]>>
 where
     R: std::io::Read,
 {
-    let mut result = Vec::<bool>::new();
-    result.try_reserve_exact(size)?;
+    let mut result = Vec::<bool>::with_capacity(size);
 
     for i in 0..size {
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
@@ -19,7 +18,7 @@ where
             _ => return Err(anyhow::anyhow!("Unable to parse #{} <{}> as BOOL", i, line)),
         }
     }
-    Ok(result)
+    Ok(result.into_boxed_slice())
 }
 
 //  //  //  //  //  //  //  //

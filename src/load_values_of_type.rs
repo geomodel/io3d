@@ -4,13 +4,12 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
-pub(crate) fn read_values<R, T>(reader: &mut BufReader<R>, size: usize, undef_value: &str) -> Result<Vec<Option<T>>>
+pub(crate) fn read_values<R, T>(reader: &mut BufReader<R>, size: usize, undef_value: &str) -> Result<Box<[Option<T>]>>
 where
     R: std::io::Read,
     T: std::str::FromStr,
 {
-    let mut result = Vec::<Option<T>>::new();
-    result.try_reserve_exact(size)?;
+    let mut result = Vec::<Option<T>>::with_capacity(size);
 
     for i in 0..size {
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
@@ -23,7 +22,7 @@ where
             result.push(Some(value));
         }
     }
-    Ok(result)
+    Ok(result.into_boxed_slice())
 }
 
 //  //  //  //  //  //  //  //

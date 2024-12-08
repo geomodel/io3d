@@ -5,7 +5,7 @@ use crate::utils::line_reader;
 use crate::IJK;
 
 //  //  //  //  //  //  //  //
-pub(crate) fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Vec<(IJK, T)>>
+pub(crate) fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Box<[(IJK, T)]>>
 where
     R: std::io::Read,
     T: std::str::FromStr,
@@ -56,7 +56,7 @@ where
         result.push((IJK { i, j, k }, value));
         counter += 1;
     }
-    Ok(result)
+    Ok(result.into_boxed_slice())
 }
 
 //  //  //  //  //  //  //  //

@@ -9,6 +9,9 @@ mod load_ijk_values_of_type;
 
 mod save_values_of_type;
 
+//mod property_actnum;
+//mod property_traits;
+
 //  //  //  //  //  //  //  //
 use anyhow::Result;
 use std::io::BufReader;
@@ -31,7 +34,7 @@ pub fn save_continuous_property(file_name: &str, property: &[Option<Continuous>]
     Ok(())
 }
 
-pub fn load_actnum(file_name: &str, size: usize) -> Result<Vec<bool>> {
+pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -42,7 +45,7 @@ pub fn load_actnum(file_name: &str, size: usize) -> Result<Vec<bool>> {
     }
     load_values_bool::read_bool(&mut reader, size)
 }
-pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Vec<Option<Discrete>>> {
+pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Box<[Option<Discrete>]>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -53,7 +56,7 @@ pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Vec<Option
     }
     load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
 }
-pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Vec<Option<Continuous>>> {
+pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Box<[Option<Continuous>]>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -65,7 +68,7 @@ pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Vec<Opti
     load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
 }
 
-pub fn load_discrete_bw(file_name: &str) -> Result<Vec<(IJK, Discrete)>> {
+pub fn load_discrete_bw(file_name: &str) -> Result<Box<[(IJK, Discrete)]>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
@@ -76,7 +79,7 @@ pub fn load_discrete_bw(file_name: &str) -> Result<Vec<(IJK, Discrete)>> {
     }
     load_ijk_values_of_type::read_ijk_values(&mut reader)
 }
-pub fn load_continuous_bw(file_name: &str) -> Result<Vec<(IJK, Continuous)>> {
+pub fn load_continuous_bw(file_name: &str) -> Result<Box<[(IJK, Continuous)]>> {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
