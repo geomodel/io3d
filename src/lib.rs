@@ -9,9 +9,6 @@ mod load_ijk_values_of_type;
 
 mod save_values_of_type;
 
-//mod property_actnum;
-//mod property_traits;
-
 //  //  //  //  //  //  //  //
 use anyhow::Result;
 use std::io::BufReader;
