@@ -31,7 +31,8 @@ where
 #[cfg(test)]
 mod read_values_of_type {
     use super::*;
-    use crate::types::*;
+    type Continuous = f64;
+    type Discrete = i16;
 
     #[test]
     fn no_values_error() {

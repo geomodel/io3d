@@ -53,7 +53,7 @@ where
                 counter + 1
             ));
         };
-        result.push((IJK { i, j, k }, value));
+        result.push(( IJK{i,j,k}, value));
         counter += 1;
     }
     Ok(result.into_boxed_slice())

@@ -18,17 +18,29 @@ pub use types::*;
 
 static UNDEF_VALUE: &str = "-999";
 
-pub fn save_discrete_property(file_name: &str, property: &[Option<Discrete>]) -> Result<()> {
+pub fn save_property<T>(file_name: &str, property: &[Option<T>]) -> Result<()>
+where
+    T: std::fmt::Display
+{
     let fl = File::create(file_name)?;
     let mut writer = BufWriter::new(fl);
     save_values_of_type::write_property(&mut writer, property, UNDEF_VALUE)?;
     Ok(())
 }
-pub fn save_continuous_property(file_name: &str, property: &[Option<Continuous>]) -> Result<()> {
-    let fl = File::create(file_name)?;
-    let mut writer = BufWriter::new(fl);
-    save_values_of_type::write_property(&mut writer, property, UNDEF_VALUE)?;
-    Ok(())
+
+pub fn load_property<T>(file_name: &str, size: usize) -> Result<Box<[Option<T>]>>
+where
+    T: std::str::FromStr
+{
+    let fl = File::open(file_name)?;
+    let mut reader = BufReader::new(fl);
+    let header = load_header::read_header(&mut reader)?;
+    if header.values_number != 1 {
+        return Err(anyhow::anyhow!(
+            "Discrete property file must contains the only value"
+        ));
+    }
+    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
 }
 
 pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
@@ -42,48 +54,19 @@ pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
     }
     load_values_bool::read_bool(&mut reader, size)
 }
-pub fn load_discrete_property(file_name: &str, size: usize) -> Result<Box<[Option<Discrete>]>> {
+
+pub fn load_bw<T>(file_name: &str) -> Result<Box<[(IJK, T)]>>
+where
+    T: std::str::FromStr
+{
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
-    if header.values_number != 1 {
+    if header.values_number != 4 {
         return Err(anyhow::anyhow!(
-            "Discrete property file must contains the only value"
+            "Upscaled file must contains I, J, K, Value"
         ));
     }
-    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
-}
-pub fn load_continuous_property(file_name: &str, size: usize) -> Result<Box<[Option<Continuous>]>> {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
-    if header.values_number != 1 {
-        return Err(anyhow::anyhow!(
-            "Continuous property file must contains the only value"
-        ));
-    }
-    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
+    load_ijk_values_of_type::read_ijk_values(&mut reader)
 }
 
-pub fn load_discrete_bw(file_name: &str) -> Result<Box<[(IJK, Discrete)]>> {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
-    if header.values_number != 4 {
-        return Err(anyhow::anyhow!(
-            "Upscaled file must contains I, J, K, Value"
-        ));
-    }
-    load_ijk_values_of_type::read_ijk_values(&mut reader)
-}
-pub fn load_continuous_bw(file_name: &str) -> Result<Box<[(IJK, Continuous)]>> {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
-    if header.values_number != 4 {
-        return Err(anyhow::anyhow!(
-            "Upscaled file must contains I, J, K, Value"
-        ));
-    }
-    load_ijk_values_of_type::read_ijk_values(&mut reader)
-}
