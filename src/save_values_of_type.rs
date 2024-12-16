@@ -3,7 +3,11 @@ use std::io::BufWriter;
 use std::io::Write;
 
 //  //  //  //  //  //  //  //
-pub fn write_property<R, T>(writer: &mut BufWriter<R>, data: &[Option<T>], undef_value: &str) -> Result<()>
+pub fn write_property<R, T>(
+    writer: &mut BufWriter<R>,
+    data: &[Option<T>],
+    undef_value: &str,
+) -> Result<()>
 where
     R: std::io::Write,
     T: std::fmt::Display,
@@ -15,10 +19,10 @@ where
         match value {
             None => {
                 writeln!(writer, "{}", undef_value)?;
-            },
+            }
             Some(v) => {
                 writeln!(writer, "{}", v)?;
-            },
+            }
         }
     }
     Ok(())

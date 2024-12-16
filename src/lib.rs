@@ -3,9 +3,9 @@ mod utils;
 
 mod load_header;
 
+mod load_ijk_values_of_type;
 mod load_values_bool;
 mod load_values_of_type;
-mod load_ijk_values_of_type;
 
 mod save_values_of_type;
 
@@ -20,7 +20,7 @@ static UNDEF_VALUE: &str = "-999";
 
 pub fn save_property<T>(file_name: &str, property: &[Option<T>]) -> Result<()>
 where
-    T: std::fmt::Display
+    T: std::fmt::Display,
 {
     let fl = File::create(file_name)?;
     let mut writer = BufWriter::new(fl);
@@ -30,7 +30,7 @@ where
 
 pub fn load_property<T>(file_name: &str, size: usize) -> Result<Box<[Option<T>]>>
 where
-    T: std::str::FromStr
+    T: std::str::FromStr,
 {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
@@ -57,7 +57,7 @@ pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
 
 pub fn load_bw<T>(file_name: &str) -> Result<Box<[(IJK, T)]>>
 where
-    T: std::str::FromStr
+    T: std::str::FromStr,
 {
     let fl = File::open(file_name)?;
     let mut reader = BufReader::new(fl);
@@ -69,4 +69,3 @@ where
     }
     load_ijk_values_of_type::read_ijk_values(&mut reader)
 }
-

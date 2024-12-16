@@ -4,7 +4,11 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
-pub(crate) fn read_values<R, T>(reader: &mut BufReader<R>, size: usize, undef_value: &str) -> Result<Box<[Option<T>]>>
+pub(crate) fn read_values<R, T>(
+    reader: &mut BufReader<R>,
+    size: usize,
+    undef_value: &str,
+) -> Result<Box<[Option<T>]>>
 where
     R: std::io::Read,
     T: std::str::FromStr,
@@ -15,9 +19,13 @@ where
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
         if line == undef_value {
             result.push(None);
-        }else{
+        } else {
             let Ok(value) = line.parse::<T>() else {
-                return Err(anyhow::anyhow!("Unable to parse #{} <{}> as value", i, line));
+                return Err(anyhow::anyhow!(
+                    "Unable to parse #{} <{}> as value",
+                    i,
+                    line
+                ));
             };
             result.push(Some(value));
         }
