@@ -16,19 +16,18 @@ use std::{fs::File, io::BufWriter};
 
 pub use types::*;
 
-static UNDEF_VALUE: &str = "-999";
 
-pub fn save_property<T>(file_name: &str, property: &[Option<T>]) -> Result<()>
+pub fn save_property<T>(file_name: &str, property: &[Option<T>], undef_value: &str) -> Result<()>
 where
     T: std::fmt::Display,
 {
     let fl = File::create(file_name)?;
     let mut writer = BufWriter::new(fl);
-    save_values_of_type::write_property(&mut writer, property, UNDEF_VALUE)?;
+    save_values_of_type::write_property(&mut writer, property, undef_value)?;
     Ok(())
 }
 
-pub fn load_property<T>(file_name: &str, size: usize) -> Result<Box<[Option<T>]>>
+pub fn load_property<T>(file_name: &str, size: usize, undef_value: &str) -> Result<Box<[Option<T>]>>
 where
     T: std::str::FromStr,
 {
@@ -40,7 +39,7 @@ where
             "Discrete property file must contains the only value"
         ));
     }
-    load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE)
+    load_values_of_type::read_values(&mut reader, size, undef_value)
 }
 
 pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
