@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.93"
+data_types = { git = "https://github.com/geomodel/data_types.git" }
