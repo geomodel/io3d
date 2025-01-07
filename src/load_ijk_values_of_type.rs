@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
-use crate::IJK;
+use data_types::*;
 
 //  //  //  //  //  //  //  //
 pub(crate) fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Box<[(IJK, T)]>>
@@ -25,21 +25,21 @@ where
                 counter + 1
             ));
         };
-        let Ok(i) = parsed_line[0].parse::<usize>() else {
+        let Ok(i) = parsed_line[0].parse::<Discrete>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as I-coordinate #{}",
                 parsed_line[0],
                 counter + 1
             ));
         };
-        let Ok(j) = parsed_line[1].parse::<usize>() else {
+        let Ok(j) = parsed_line[1].parse::<Discrete>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as J-coordinate #{}",
                 parsed_line[1],
                 counter + 1
             ));
         };
-        let Ok(k) = parsed_line[2].parse::<usize>() else {
+        let Ok(k) = parsed_line[2].parse::<Discrete>() else {
             return Err(anyhow::anyhow!(
                 "Unable to parse <{}> as K-coordinate #{}",
                 parsed_line[2],
@@ -101,29 +101,6 @@ mod read_ijk_values_of_type {
         );
 
         s = "\n1 2 3. 5\n\n";
-        let mut reader = BufReader::new(s.as_bytes());
-        assert!(
-            read_ijk_values::<&[u8], i16>(&mut reader).is_err(),
-            "must be Error"
-        );
-    }
-    #[test]
-    fn negative_ijk_error() {
-        let mut s = "\n-1 2 3 5\n\n";
-        let mut reader = BufReader::new(s.as_bytes());
-        assert!(
-            read_ijk_values::<&[u8], i16>(&mut reader).is_err(),
-            "must be Error"
-        );
-
-        s = "\n1 -2 3 5\n\n";
-        let mut reader = BufReader::new(s.as_bytes());
-        assert!(
-            read_ijk_values::<&[u8], i16>(&mut reader).is_err(),
-            "must be Error"
-        );
-
-        s = "\n1 2 -3 5\n\n";
         let mut reader = BufReader::new(s.as_bytes());
         assert!(
             read_ijk_values::<&[u8], i16>(&mut reader).is_err(),
