@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
-use data_types::*;
+use types3d::*;
 
 //  //  //  //  //  //  //  //
 pub(crate) fn read_ijk_values<R, T>(reader: &mut BufReader<R>) -> Result<Box<[(IJK, T)]>>
