@@ -13,7 +13,7 @@ use anyhow::Result;
 use std::io::BufReader;
 use std::{fs::File, io::BufWriter};
 
-use data_types::*;
+pub use data_types::*;
 
 
 pub fn save_property<T>(file_name: &str, property: &[Option<T>], undef_value: &str) -> Result<()>
