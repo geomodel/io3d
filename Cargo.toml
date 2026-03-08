@@ -4,5 +4,6 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-anyhow.workspace = true
+#anyhow.workspace = true
+anyhow = "1.0.102"
 types3d = { git = "https://github.com/geomodel/types3d.git" }
