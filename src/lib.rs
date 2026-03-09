@@ -17,6 +17,7 @@ pub use types3d;
 use types3d::*;
 
 
+//  //  //  //  //  //  //  //
 pub fn save_property<T>(file_name: &str, property: &[Option<T>], undef_value: &str) -> Result<()>
 where
     T: std::fmt::Display,
@@ -68,3 +69,30 @@ where
     }
     load_ijk_values_of_type::read_ijk_values(&mut reader)
 }
+
+//  //  //  //  //  //  //  //
+pub fn save_raw_property<T>(file_name: &str, property: &[T]) -> Result<()>
+where
+    T: std::fmt::Display,
+{
+    let fl = File::create(file_name)?;
+    let mut writer = BufWriter::new(fl);
+    save_values_of_type::write_raw_property(&mut writer, property)?;
+    Ok(())
+}
+
+pub fn load_raw_property<T>(file_name: &str, size: usize) -> Result<Box<[T]>>
+where
+    T: std::str::FromStr,
+{
+    let fl = File::open(file_name)?;
+    let mut reader = BufReader::new(fl);
+    let header = load_header::read_header(&mut reader)?;
+    if header.values_number != 1 {
+        return Err(anyhow::anyhow!(
+            "Discrete property file must contains the only value"
+        ));
+    }
+    load_values_of_type::read_raw_values(&mut reader, size)
+}
+

@@ -4,6 +4,32 @@ use std::io::BufReader;
 use crate::utils::line_reader;
 
 //  //  //  //  //  //  //  //
+//  TODO: no tests
+pub(crate) fn read_raw_values<R, T>(
+    reader: &mut BufReader<R>,
+    size: usize,
+) -> Result<Box<[T]>>
+where
+    R: std::io::Read,
+    T: std::str::FromStr,
+{
+    let mut result = Vec::<T>::with_capacity(size);
+
+    for i in 0..size {
+        let line = line_reader(reader, &format!("Value #{}", i + 1))?;
+        let Ok(value) = line.parse::<T>() else {
+            return Err(anyhow::anyhow!(
+                "Unable to parse #{} <{}> as value",
+                i,
+                line
+            ));
+        };
+        result.push(value);
+    }
+    Ok(result.into_boxed_slice())
+}
+
+//  //  //  //  //  //  //  //
 pub(crate) fn read_values<R, T>(
     reader: &mut BufReader<R>,
     size: usize,
