@@ -1,6 +1,6 @@
-use anyhow::Result;
 use std::io::BufReader;
 
+use crate::Result;
 use crate::utils::line_reader;
 use types3d::*;
 
@@ -19,39 +19,41 @@ where
         };
         let parsed_line: Vec<&str> = line.split_ascii_whitespace().collect();
         if parsed_line.len() < 4 {
-            return Err(anyhow::anyhow!(
-                "Unable to parse <{}> as i-j-k-value #{}",
-                line,
-                counter + 1
-            ));
+            return Err(
+                format!("Unable to parse <{}> as i-j-k-value #{}", line, counter + 1).into(),
+            );
         };
         let Ok(i) = parsed_line[0].parse::<usize>() else {
-            return Err(anyhow::anyhow!(
+            return Err(format!(
                 "Unable to parse <{}> as I-coordinate #{}",
                 parsed_line[0],
                 counter + 1
-            ));
+            )
+            .into());
         };
         let Ok(j) = parsed_line[1].parse::<usize>() else {
-            return Err(anyhow::anyhow!(
+            return Err(format!(
                 "Unable to parse <{}> as J-coordinate #{}",
                 parsed_line[1],
                 counter + 1
-            ));
+            )
+            .into());
         };
         let Ok(k) = parsed_line[2].parse::<usize>() else {
-            return Err(anyhow::anyhow!(
+            return Err(format!(
                 "Unable to parse <{}> as K-coordinate #{}",
                 parsed_line[2],
                 counter + 1
-            ));
+            )
+            .into());
         };
         let Ok(value) = parsed_line[3].parse::<T>() else {
-            return Err(anyhow::anyhow!(
+            return Err(format!(
                 "Unable to parse <{}> as value #{}",
                 parsed_line[3],
                 counter + 1
-            ));
+            )
+            .into());
         };
         result.push((IJK { i, j, k }, value));
         counter += 1;

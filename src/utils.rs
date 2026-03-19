@@ -1,7 +1,6 @@
-use anyhow::Result;
-
 use std::io::{BufRead, BufReader};
 
+use crate::Result;
 //  //  //  //  //  //  //  //
 pub(crate) fn line_reader<R>(reader: &mut BufReader<R>, line_type_name: &str) -> Result<String>
 where
@@ -11,7 +10,7 @@ where
     loop {
         reader.read_line(&mut line)?;
         if line.is_empty() {
-            return Err(anyhow::anyhow!("No data for reading <{}>", line_type_name));
+            return Err(format!("No data for reading <{}>", line_type_name).into());
         }
         line.retain(|ch| !"\n\r".contains(ch));
         if !line.is_empty() {

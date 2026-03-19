@@ -1,7 +1,7 @@
-use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
+use crate::Result;
 
 //  //  //  //  //  //  //  //
 pub(crate) struct PropertyHeader {
@@ -19,10 +19,10 @@ where
     let title = line_reader(reader, "Header Title")?;
 
     let Ok(values_number) = line_reader(reader, "Header Values Number")?.parse::<u8>() else {
-        return Err(anyhow::anyhow!("Invalid format Header Values Number"));
+        return Err("Invalid format Header Values Number".into());
     };
     if values_number == 0 {
-        return Err(anyhow::anyhow!("Zero Header Values Number"));
+        return Err("Zero Header Values Number".into());
     }
 
     let mut descriptions = Vec::new();

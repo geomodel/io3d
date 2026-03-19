@@ -1,7 +1,7 @@
-use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
+use crate::Result;
 
 //  //  //  //  //  //  //  //
 pub(crate) fn read_bool<R>(reader: &mut BufReader<R>, size: usize) -> Result<Box<[bool]>>
@@ -15,7 +15,7 @@ where
         match line.as_str() {
             "0" => result.push(false),
             "1" => result.push(true),
-            _ => return Err(anyhow::anyhow!("Unable to parse #{} <{}> as BOOL", i, line)),
+            _ => return Err(format!("Unable to parse #{} <{}> as BOOL", i, line).into()),
         }
     }
     Ok(result.into_boxed_slice())

@@ -1,14 +1,11 @@
-use anyhow::Result;
 use std::io::BufReader;
 
 use crate::utils::line_reader;
+use crate::Result;
 
 //  //  //  //  //  //  //  //
 //  TODO: no tests
-pub(crate) fn read_raw_values<R, T>(
-    reader: &mut BufReader<R>,
-    size: usize,
-) -> Result<Box<[T]>>
+pub(crate) fn read_raw_values<R, T>(reader: &mut BufReader<R>, size: usize) -> Result<Box<[T]>>
 where
     R: std::io::Read,
     T: std::str::FromStr,
@@ -18,11 +15,7 @@ where
     for i in 0..size {
         let line = line_reader(reader, &format!("Value #{}", i + 1))?;
         let Ok(value) = line.parse::<T>() else {
-            return Err(anyhow::anyhow!(
-                "Unable to parse #{} <{}> as value",
-                i,
-                line
-            ));
+            return Err(format!("Unable to parse #{} <{}> as value", i, line).into());
         };
         result.push(value);
     }
@@ -47,11 +40,7 @@ where
             result.push(None);
         } else {
             let Ok(value) = line.parse::<T>() else {
-                return Err(anyhow::anyhow!(
-                    "Unable to parse #{} <{}> as value",
-                    i,
-                    line
-                ));
+                return Err(format!("Unable to parse #{} <{}> as value", i, line).into());
             };
             result.push(Some(value));
         }

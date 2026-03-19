@@ -1,3 +1,4 @@
+mod error;
 mod utils;
 
 mod load_header;
@@ -9,13 +10,13 @@ mod load_values_of_type;
 mod save_values_of_type;
 
 //  //  //  //  //  //  //  //
-use anyhow::Result;
+pub use self::error::{Error, Result};
+
 use std::io::BufReader;
 use std::{fs::File, io::BufWriter};
 
 pub use types3d;
 use types3d::*;
-
 
 //  //  //  //  //  //  //  //
 pub fn save_property<T>(file_name: &str, property: &[Option<T>], undef_value: &str) -> Result<()>
@@ -36,11 +37,14 @@ where
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
     if header.values_number != 1 {
-        return Err(anyhow::anyhow!(
-            "Discrete property file must contains the only value"
-        ));
+        // TODO: check message correction
+        return Err("Discrete property file must contains the only value".into());
     }
-    load_values_of_type::read_values(&mut reader, size, undef_value)
+    Ok(load_values_of_type::read_values(
+        &mut reader,
+        size,
+        undef_value,
+    )?)
 }
 
 pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
@@ -48,11 +52,9 @@ pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
     if header.values_number != 1 {
-        return Err(anyhow::anyhow!(
-            "Actnum property file must contains the only value"
-        ));
+        return Err("Actnum property file must contains the only value".into());
     }
-    load_values_bool::read_bool(&mut reader, size)
+    Ok(load_values_bool::read_bool(&mut reader, size)?)
 }
 
 pub fn load_bw<T>(file_name: &str) -> Result<Box<[(IJK, T)]>>
@@ -63,11 +65,9 @@ where
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
     if header.values_number != 4 {
-        return Err(anyhow::anyhow!(
-            "Upscaled file must contains I, J, K, Value"
-        ));
+        return Err("Upscaled file must contains I, J, K, Value".into());
     }
-    load_ijk_values_of_type::read_ijk_values(&mut reader)
+    Ok(load_ijk_values_of_type::read_ijk_values(&mut reader)?)
 }
 
 //  //  //  //  //  //  //  //
@@ -89,10 +89,7 @@ where
     let mut reader = BufReader::new(fl);
     let header = load_header::read_header(&mut reader)?;
     if header.values_number != 1 {
-        return Err(anyhow::anyhow!(
-            "Discrete property file must contains the only value"
-        ));
+        return Err("Discrete property file must contains the only value".into());
     }
-    load_values_of_type::read_raw_values(&mut reader, size)
+    Ok(load_values_of_type::read_raw_values(&mut reader, size)?)
 }
-
