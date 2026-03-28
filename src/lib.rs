@@ -12,9 +12,6 @@ mod save_values_of_type;
 //  //  //  //  //  //  //  //
 pub use self::error::{Error, Result};
 
-use std::io::BufReader;
-use std::{fs::File, io::BufWriter};
-
 pub use types3d;
 use types3d::*;
 
@@ -23,8 +20,7 @@ pub fn save_property<T>(file_name: &str, property: &[Option<T>], undef_value: &s
 where
     T: std::fmt::Display,
 {
-    let fl = File::create(file_name)?;
-    let mut writer = BufWriter::new(fl);
+    let mut writer = utils::prepare_saving(file_name)?;
     save_values_of_type::write_property(&mut writer, property, undef_value)?;
     Ok(())
 }
@@ -33,24 +29,17 @@ pub fn load_property<T>(file_name: &str, size: usize, undef_value: &str) -> Resu
 where
     T: std::str::FromStr,
 {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
+    let (mut reader, header) = utils::prepare_loading(file_name)?;
     if header.values_number != 1 {
-        // TODO: check message correction
-        return Err("Discrete property file must contains the only value".into());
+        return Err("Property file must contains the only value".into());
     }
-    Ok(load_values_of_type::read_values(
-        &mut reader,
-        size,
-        undef_value,
-    )?)
+    let container: load_values_of_type::AsOptionValues<T> =
+        load_values_of_type::read_values(&mut reader, size, undef_value)?;
+    Ok(container.array.into_boxed_slice())
 }
 
 pub fn load_actnum(file_name: &str, size: usize) -> Result<Box<[bool]>> {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
+    let (mut reader, header) = utils::prepare_loading(file_name)?;
     if header.values_number != 1 {
         return Err("Actnum property file must contains the only value".into());
     }
@@ -61,9 +50,7 @@ pub fn load_bw<T>(file_name: &str) -> Result<Box<[(IJK, T)]>>
 where
     T: std::str::FromStr,
 {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
+    let (mut reader, header) = utils::prepare_loading(file_name)?;
     if header.values_number != 4 {
         return Err("Upscaled file must contains I, J, K, Value".into());
     }
@@ -71,25 +58,27 @@ where
 }
 
 //  //  //  //  //  //  //  //
+const UNDEF_VALUE: i16 = -999;
+const UNDEF_VALUE_STR: &str = "-999";
+
 pub fn save_raw_property<T>(file_name: &str, property: &[T]) -> Result<()>
 where
     T: std::fmt::Display,
 {
-    let fl = File::create(file_name)?;
-    let mut writer = BufWriter::new(fl);
+    let mut writer = utils::prepare_saving(file_name)?;
     save_values_of_type::write_raw_property(&mut writer, property)?;
     Ok(())
 }
-
-pub fn load_raw_property<T>(file_name: &str, size: usize) -> Result<Box<[T]>>
+pub fn load_raw_property<T: std::convert::From<i16>+Clone>(file_name: &str, size: usize) -> Result<Box<[T]>>
 where
     T: std::str::FromStr,
 {
-    let fl = File::open(file_name)?;
-    let mut reader = BufReader::new(fl);
-    let header = load_header::read_header(&mut reader)?;
+    let (mut reader, header) = utils::prepare_loading(file_name)?;
     if header.values_number != 1 {
         return Err("Discrete property file must contains the only value".into());
     }
-    Ok(load_values_of_type::read_raw_values(&mut reader, size)?)
+    let mut container: load_values_of_type::AsRawValues<T> =
+        load_values_of_type::read_values(&mut reader, size, UNDEF_VALUE_STR)?;
+    container.undef = UNDEF_VALUE.try_into()?;
+    Ok(container.array.into_boxed_slice())
 }

@@ -1,8 +1,25 @@
-use std::io::{BufRead, BufReader};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, BufWriter},
+};
 
 use crate::Result;
+use crate::load_header;
 //  //  //  //  //  //  //  //
-pub(crate) fn line_reader<R>(reader: &mut BufReader<R>, line_type_name: &str) -> Result<String>
+//  //  //  //  //  //  //  //
+pub(crate) fn prepare_saving(file_name: &str) -> Result<BufWriter<File>> {
+    let fl = File::create(file_name)?;
+    let writer = BufWriter::new(fl);
+    Ok(writer)
+}
+pub(crate) fn prepare_loading(file_name: &str) -> Result<(BufReader<File>, load_header::PropertyHeader)> {
+    let fl = File::open(file_name)?;
+    let mut reader = BufReader::new(fl);
+    let header = load_header::read_header(&mut reader)?;
+    Ok((reader, header))
+}
+//  //  //  //  //  //  //  //
+pub(crate) fn line_reader<R>(reader: &mut BufReader<R>, err_line_type_name: &str) -> Result<String>
 where
     R: std::io::Read,
 {
@@ -10,7 +27,7 @@ where
     loop {
         reader.read_line(&mut line)?;
         if line.is_empty() {
-            return Err(format!("No data for reading <{}>", line_type_name).into());
+            return Err(format!("No data for reading <{}>", err_line_type_name).into());
         }
         line.retain(|ch| !"\n\r".contains(ch));
         if !line.is_empty() {
