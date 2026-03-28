@@ -12,6 +12,27 @@ pub(crate) trait OutputContainer<T> {
 }
 
 //  //  //  //  //  //  //  //
+pub(crate) struct AsValuesAndDefFlag<T> {
+    pub(crate) main_array: Vec<T>,
+    pub(crate) flag_array: Vec<bool>,
+}
+impl<T: std::convert::From<i16>> OutputContainer<T> for AsValuesAndDefFlag<T> {
+    fn new_with_capacity(size: usize) -> Self {
+        Self {
+            main_array: Vec::<T>::with_capacity(size),
+            flag_array: Vec::<bool>::with_capacity(size),
+        }
+    }
+    fn push(&mut self, value: T) {
+        self.main_array.push(value);
+        self.flag_array.push(true);
+    }
+    fn push_undef(&mut self) {
+        self.main_array.push(0.into());
+        self.flag_array.push(false);
+    }
+}
+
 pub(crate) struct AsOptionValues<T> {
     pub(crate) array: Vec<Option<T>>,
 }
@@ -79,6 +100,70 @@ where
 //  //  //  //  //  //  //  //
 //        TESTS             //
 //  //  //  //  //  //  //  //
+#[cfg(test)]
+mod with_defflag_values {
+    use super::*;
+    type Continuous = f64;
+    type Discrete = i16;
+    type TestedType<T> = AsValuesAndDefFlag<T>;
+
+    #[test]
+    fn no_values_error() {
+        let s = "\n\n\n";
+        let mut reader = BufReader::new(s.as_bytes());
+        let container =
+            read_values::<&[u8], Discrete, TestedType<Discrete>>(&mut reader, 1, "-999");
+        assert!(container.is_err(), "must get the error!");
+    }
+    #[test]
+    fn invalid_values_error() {
+        let s = "\n2.\n\n";
+        let mut reader = BufReader::new(s.as_bytes());
+        let container = read_values::<&[u8], Discrete, TestedType<Discrete>>(&mut reader, 1, "-999");
+        assert!(container.is_err(), "must get the error!");
+    }
+
+    #[test]
+    fn integer_values() -> Result<()> {
+        let s = "\n\n\n-999\n\n\n\n1\n0\n5\nunreachable\n";
+        let mut reader = BufReader::new(s.as_bytes());
+        let container = read_values::<&[u8], Discrete, TestedType<Discrete>>(&mut reader, 4, "-999")?;
+        let main_values = container.main_array;
+        let flag_values = container.flag_array;
+        assert!(main_values.len() == 4);
+        assert!(flag_values.len() == 4);
+        assert!(main_values[0] == 0);
+        assert!(flag_values[0] == false);
+        assert!(main_values[1] == 1);
+        assert!(flag_values[1] == true);
+        assert!(main_values[2] == 0);
+        assert!(flag_values[2] == true);
+        assert!(main_values[3] == 5);
+        assert!(flag_values[3] == true);
+        Ok(())
+    }
+
+    #[test]
+    fn countinues_values() -> Result<()> {
+        let s = "\n\n\n-999\n\n\n\n1.0\n0.3\n5\nunreachable\n";
+        let mut reader = BufReader::new(s.as_bytes());
+        let container = read_values::<&[u8], Continuous, TestedType<Continuous>>(&mut reader, 4, "-999")?;
+        let main_values = container.main_array;
+        let flag_values = container.flag_array;
+        assert!(main_values.len() == 4);
+        assert!(flag_values.len() == 4);
+        assert!(main_values[0] == 0.);
+        assert!(flag_values[0] == false);
+        assert!(main_values[1] == 1.);
+        assert!(flag_values[1] == true);
+        assert!(main_values[2] == 0.3);
+        assert!(flag_values[2] == true);
+        assert!(main_values[3] == 5.);
+        assert!(flag_values[3] == true);
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod option_values {
     use super::*;
