@@ -4,6 +4,8 @@ in\out 3d properties
 ---
 
 #### ToDo
+
+#### obsolet done list
 - [x] read blocked property file
 - [x] read discrete property file
 - [x] read continues property file

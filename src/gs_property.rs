@@ -8,7 +8,7 @@ use crate::GSHeader;
 //  //  //  //  //  //  //  //
 pub struct GSProperty {
     pub header: GSHeader,
-    pub properties: Vec<Vec<String>>,
+    pub properties: Box<[Box<[f32]>]>,
 }
 
 impl GSProperty {
@@ -21,43 +21,46 @@ impl GSProperty {
     fn load_properties<R: Read>(
         properties_num: usize,
         reader: BufReader<R>,
-    ) -> Result<Vec<Vec<String>>> {
+    ) -> Result<Box<[Box<[f32]>]>> {
         let mut reader = reader;
         let mut result = vec![Vec::new(); properties_num];
 
-        let mut counter: usize = 1;
+        let mut line_counter: usize = 1;
         loop {
             let line = line_reader(&mut reader)
-                .map_err(|e| format!("while reading properties line #{}: {}", counter, e))?;
+                .map_err(|e| format!("while reading property section line #{}: {}", line_counter, e))?;
             let Some(line) = line else {
                 break;
             };
             let parsed_line: Vec<&str> = line.split_ascii_whitespace().collect();
             if parsed_line.len() != properties_num {
                 return Err(format!(
-                    "while reading properties line #{}: got {} values, must be {} values",
-                    counter,
+                    "while reading property section line #{}: got {} values, must be {} values",
+                    line_counter,
                     parsed_line.len(),
                     properties_num
                 )
                 .into());
             };
-            /*
-            let Ok(value) = parsed_line[3].parse::<T>() else {
-                return Err(format!(
-                    "Unable to parse <{}> as value #{}",
-                    parsed_line[3],
-                    counter + 1
-                )
-                .into());
-            };
-            */
             for pi in 0..properties_num {
-                result[pi].push(parsed_line[pi].into());
+                let col_str = parsed_line[pi];
+                let v: f32 = match col_str.parse::<f32>() {
+                    Ok(p) => p,
+                    Err(e) => {
+                        return Err(format!(
+                            "while reading property section line #{} got <{}>: {e}",
+                            line_counter,
+                            col_str,
+                        )
+                        .into());
+                    },
+                };
+                result[pi].push(v);
             }
-            counter += 1;
+            line_counter += 1;
         } //loop
-        Ok(result)
+        let result: Vec<Box<[f32]>> = result.into_iter().map(|item| item.into_boxed_slice()).collect();
+        Ok(result.into_boxed_slice())
     }
 }
 
@@ -83,8 +86,10 @@ mod basic {
         let (header, reader) = GSHeader::from_reader(reader)?;
         let prop = GSProperty::from_gs_header(header, reader)?;
         assert!(prop.properties.len() == 2);
-        assert!(prop.properties[0].len() == 3);
-        assert!(prop.properties[1].len() == 3);
+        let len0 = prop.properties[0].len();
+        assert!(len0 == 3, "len0 should be 3, got {len0}");
+        let len1 = prop.properties[0].len();
+        assert!(len1 == len0, "len1 should be equal to len0={len0}, got {len1}");
         Ok(())
     }
 
@@ -102,7 +107,7 @@ mod basic {
         let Err(e) = GSProperty::from_gs_header(header, reader) else {
             return Err("must be Err!".into());
         };
-        let c = "while reading properties line #2: got 1 values, must be 2 values";
+        let c = "while reading property section line #1 got <w>: invalid float literal";
         let e = format!("{e}");
         assert!(e == c, "Err must be: {:?}\nbut got: {:?}", c, e);
         Ok(())
@@ -122,7 +127,7 @@ mod basic {
         let Err(e) = GSProperty::from_gs_header(header, reader) else {
             return Err("must be Err!".into());
         };
-        let c = "while reading properties line #2: got 1 values, must be 2 values";
+        let c = "while reading property section line #2: got 1 values, must be 2 values";
         let e = format!("{e}");
         assert!(e == c, "Err must be: {:?}\nbut got: {:?}", c, e);
         Ok(())
