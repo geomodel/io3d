@@ -1,5 +1,7 @@
 help:
 	@cat Makefile
+todo:
+	@grep -ilR "TODO"
 
 # # # # # # # #
 pull:

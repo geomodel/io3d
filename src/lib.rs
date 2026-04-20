@@ -1,17 +1,19 @@
 mod error;
-mod utils;
-
-mod load_header;
-
-mod load_ijk_values_of_type;
-mod load_values_bool;
-mod load_values_of_type;
-
-mod save_values_of_type;
+pub use error::{Error, Result};
+pub use types3d;
 
 //  //  //  //  //  //  //  //
-mod api;
-pub use api::*;
+mod legacy;
+pub use legacy::api;
+//  //  //  //  //  //  //  //
+//  //  //  //  //  //  //  //
+mod line_reader;
 
-pub use self::error::{Error, Result};
-pub use types3d;
+//mod gs_data;
+//use gs_data::*;
+
+mod gs_header;
+pub use gs_header::GSHeader;
+
+mod gs_property;
+pub use gs_property::GSProperty;

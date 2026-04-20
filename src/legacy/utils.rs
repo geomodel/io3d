@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::Result;
-use crate::load_header;
+use super::load_header;
 //  //  //  //  //  //  //  //
 //  //  //  //  //  //  //  //
 pub(crate) fn prepare_saving(file_name: &str) -> Result<BufWriter<File>> {

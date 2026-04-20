@@ -2,7 +2,7 @@ use types3d;
 use types3d::*;
 
 use crate::error::Result;
-use crate::{
+use super::{
     utils,
     load_values_bool,
     load_values_of_type,

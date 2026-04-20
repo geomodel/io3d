@@ -1,7 +1,7 @@
 use std::io::BufReader;
 
 use crate::Result;
-use crate::utils::line_reader;
+use super::utils::line_reader;
 use types3d::*;
 
 //  //  //  //  //  //  //  //

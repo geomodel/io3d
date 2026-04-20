@@ -1,6 +1,6 @@
 use std::io::BufReader;
 
-use crate::utils::line_reader;
+use super::utils::line_reader;
 use crate::Result;
 
 //  //  //  //  //  //  //  //
