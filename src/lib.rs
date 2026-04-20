@@ -4,7 +4,7 @@ pub use types3d;
 
 //  //  //  //  //  //  //  //
 mod legacy;
-pub use legacy::api;
+pub use legacy::api as legacy_api;
 //  //  //  //  //  //  //  //
 //  //  //  //  //  //  //  //
 mod line_reader;
