@@ -89,7 +89,7 @@ mod ijk_dims {
         let s = format!("{title}\n{values_num}\n{descr_1}");
         let reader = BufReader::new(s.as_bytes());
         let (header, _) = GSHeader::from_reader(reader)?;
-        let Err(e) = header.parse_ijk_dims() else {
+        let Err(_) = header.parse_ijk_dims() else {
             return Err("must be Err!".into());
         };
         Ok(())
