@@ -61,12 +61,56 @@ impl GSHeader {
             )
         )
     }
+    pub fn parse_ijk_dims(&self) -> Result<(usize, usize, usize)> {
+        let info: Vec<&str> = self.title.split_ascii_whitespace().collect();
+        if info[0] != "ijk-dims:" {
+            return Err("title is not <ijk-dims>".into());
+        }
+        let i: usize = info[1].parse()?;
+        let j: usize = info[2].parse()?;
+        let k: usize = info[3].parse()?;
+        Ok((i, j, k))
+    }
 }
-
 
 //  //  //  //  //  //  //  //
 //        TESTS             //
 //  //  //  //  //  //  //  //
+#[cfg(test)]
+mod ijk_dims {
+    use super::*;
+    use crate::Result;
+
+    #[test]
+    fn err_ijk() ->Result<()> {
+        let title = "ijk-dims: 2 3 5.";
+        let values_num:usize = 1;
+        let descr_1 = String::from("desc 1").into_boxed_str();
+        let s = format!("{title}\n{values_num}\n{descr_1}");
+        let reader = BufReader::new(s.as_bytes());
+        let (header, _) = GSHeader::from_reader(reader)?;
+        let Err(e) = header.parse_ijk_dims() else {
+            return Err("must be Err!".into());
+        };
+        Ok(())
+    }
+
+    #[test]
+    fn get_ijk() ->Result<()> {
+        let title = "ijk-dims: 2 3 5";
+        let values_num:usize = 1;
+        let descr_1 = String::from("desc 1").into_boxed_str();
+        let s = format!("{title}\n{values_num}\n{descr_1}");
+        let reader = BufReader::new(s.as_bytes());
+        let (header, _) = GSHeader::from_reader(reader)?;
+        let (i, j, k) = header.parse_ijk_dims()?;
+        assert!(i == 2);
+        assert!(j == 3);
+        assert!(k == 5);
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod basic {
     use super::*;
