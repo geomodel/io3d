@@ -59,12 +59,21 @@ where
 const UNDEF_VALUE: i16 = -999;
 const UNDEF_VALUE_STR: &str = "-999";
 
+pub fn save_raw_property_with_title<T>(file_name: &str, property: &[T], title: &str) -> Result<()>
+where
+    T: std::fmt::Display,
+{
+    let mut writer = utils::prepare_saving(file_name)?;
+    save_values_of_type::write_raw_property(&mut writer, property, Some(title))?;
+    Ok(())
+}
+
 pub fn save_raw_property<T>(file_name: &str, property: &[T]) -> Result<()>
 where
     T: std::fmt::Display,
 {
     let mut writer = utils::prepare_saving(file_name)?;
-    save_values_of_type::write_raw_property(&mut writer, property)?;
+    save_values_of_type::write_raw_property(&mut writer, property, None)?;
     Ok(())
 }
 

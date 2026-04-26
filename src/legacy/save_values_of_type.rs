@@ -6,12 +6,17 @@ use crate::Result;
 pub fn write_raw_property<R, T>(
     writer: &mut BufWriter<R>,
     data: &[T],
+    title: Option<&str>,
 ) -> Result<()>
 where
     R: std::io::Write,
     T: std::fmt::Display,
 {
-    writeln!(writer, "GeoModel: Property")?;
+    if let Some(title) = title {
+        writeln!(writer, "{}", title)?;
+    } else {
+        writeln!(writer, "GeoModel: Property")?;
+    }
     writeln!(writer, "1")?;
     writeln!(writer, "Value")?;
     for value in data {
@@ -89,12 +94,38 @@ mod write_raw_values_of_type {
     type Discrete = i16;
 
     #[test]
+    fn raw_discrete_values_title() -> Result<()> {
+        let comp = "notNone\n1\nValue\n1\n2\n3\n";
+        let mut buf = Vec::new();
+        let mut writer = BufWriter::new(&mut buf);
+        let property: Vec<Discrete> = vec![1, 2, 3];
+        write_raw_property(&mut writer, &property, Some("notNone"))?;
+        drop(writer);
+        let s = String::from_utf8(buf)?;
+        assert!(s == comp);
+        Ok(())
+    }
+
+    #[test]
+    fn raw_continue_values_title() -> Result<()> {
+        let comp = "notNone Continue\n1\nValue\n1\n2.2\n0.3\n";
+        let mut buf = Vec::new();
+        let mut writer = BufWriter::new(&mut buf);
+        let arr: [Continuous; 3] = [1.0, 2.2, 0.3];
+        write_raw_property(&mut writer, &arr, Some("notNone Continue"))?;
+        drop(writer);
+        let s = String::from_utf8(buf)?;
+        assert!(s == comp);
+        Ok(())
+    }
+
+    #[test]
     fn raw_discrete_values() -> Result<()> {
         let comp = "GeoModel: Property\n1\nValue\n1\n2\n3\n";
         let mut buf = Vec::new();
         let mut writer = BufWriter::new(&mut buf);
         let property: Vec<Discrete> = vec![1, 2, 3];
-        write_raw_property(&mut writer, &property)?;
+        write_raw_property(&mut writer, &property, None)?;
         drop(writer);
         let s = String::from_utf8(buf)?;
         assert!(s == comp);
@@ -107,7 +138,7 @@ mod write_raw_values_of_type {
         let mut buf = Vec::new();
         let mut writer = BufWriter::new(&mut buf);
         let arr: [Continuous; 3] = [1.0, 2.2, 0.3];
-        write_raw_property(&mut writer, &arr)?;
+        write_raw_property(&mut writer, &arr, None)?;
         drop(writer);
         let s = String::from_utf8(buf)?;
         assert!(s == comp);
